@@ -1,0 +1,53 @@
+pipeline{
+    agent any
+    
+    environment{
+        reistry = "Shoaib28/vproapp"
+    }
+    stages{
+        stage('Fetch code from Github'){
+            steps{
+                git branch:"main",url:"github.com"
+            }
+        }
+
+        stage('build'){
+            steps{
+                sh 'mvn clean install'
+            }
+
+            post{
+                success{
+                    archiveArtifacts artifacts:'**/*.war'
+                }
+            }
+        }
+
+        stage('test'){
+            steps{
+                sh 'mvn test'
+            }
+        }
+
+        stage('code analysis'){
+            steps{
+
+            }
+        }
+
+        stage('building docker image'){
+            step{
+               def Image =  docker.build("vproapp:${BUILD_ID}")
+               sh "docker build -t ${reistry}:v${BUILD_ID} ."
+            }
+        }
+
+        stage('uploading image to dockerHub'){
+            steps{
+                sh "docker push ${reistry}:v${BUILD_ID}"
+            }
+        }
+    }
+
+
+}

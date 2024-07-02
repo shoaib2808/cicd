@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vprodb
+  labels:
+    app: vprodb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vprodb
+  template:
+    metadata:
+      labels:
+        app: vprodb
+    spec:
+      containers:
+      - name: vprofiledb
+        image: vprofile/vprofiledb
+        volumeMounts:
+         - mountpath: /var/lib/mysql 
+        ports:
+        - name : vprdb-port
+          containerPort: 3306
+    nodeSelector:
+      zone: us-east-2a  // bcoz should be in same zone as node 
+    volume:
+      - name: vprodbvol
+        awsElasticBlockStore:
+          volumeID: vol-0b402cb854e070fad
+         fsType: ext4
+      initcontainer:
+       - name: busybox
+         image: busybox:latest
+         args: ["rm","-rf","/var/lib/mysql lost+found"]
+         volumeMounts:
+          - mountpath: /var/lib/mysql 
+
+when we format volume ext4 then lost+found folder will be created this will not let mysql to start

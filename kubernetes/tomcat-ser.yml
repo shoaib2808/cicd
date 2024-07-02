@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: service
+metadata:
+  name: vproappservice
+spec:
+  ports:
+   - port: 8080
+     targetport: vprapp-port
+     selector:
+       app: vproapp
+  type: LoadBalancer
